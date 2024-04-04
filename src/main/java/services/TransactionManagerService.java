@@ -2,6 +2,7 @@ package services;
 
 import domain.AccountModel;
 import domain.MoneyModel;
+import domain.SavingsAccountModel;
 import domain.TransactionModel;
 import repository.AccountsRepository;
 
@@ -18,6 +19,10 @@ public class TransactionManagerService {
 
         if (fromAccount == null || toAccount == null) {
             throw new RuntimeException("Specified account does not exist");
+        }
+
+        if (fromAccount instanceof SavingsAccountModel) {
+            throw  new RuntimeException("You can't transfer from a savings account");
         }
 
         TransactionModel transaction = new TransactionModel(
@@ -38,7 +43,26 @@ public class TransactionManagerService {
     }
 
     public TransactionModel withdraw(String accountId, MoneyModel amount) {
-        throw new RuntimeException("Not implemented");
+        AccountModel account = AccountsRepository.INSTANCE.get(accountId);
+        if (account == null) {
+            throw new RuntimeException("This account doesn't exist");
+        }
+        if (amount.getAmount() > account.getBalance().getAmount()) {
+            throw  new RuntimeException("Insufficient funds");
+        }
+
+        account.getBalance().setAmount(account.getBalance().getAmount() - amount.getAmount());
+
+        TransactionModel transaction = new TransactionModel(
+                UUID.randomUUID(),
+                accountId,
+                accountId,
+                amount,
+                LocalDate.now()
+        );
+
+        account.getTransactions().add(transaction);
+        return transaction;
     }
 
     public MoneyModel checkFunds(String accountId) {
