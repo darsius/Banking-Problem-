@@ -5,6 +5,7 @@ import domain.MoneyModel;
 import domain.SavingsAccountModel;
 import domain.TransactionModel;
 import repository.AccountsRepository;
+import utils.MoneyUtils;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -17,13 +18,7 @@ public class TransactionManagerService {
         AccountModel fromAccount = AccountsRepository.INSTANCE.get(fromAccountId);
         AccountModel toAccount = AccountsRepository.INSTANCE.get(toAccountId);
 
-        if (fromAccount == null || toAccount == null) {
-            throw new RuntimeException("Specified account does not exist");
-        }
-
-        if (fromAccount instanceof SavingsAccountModel) {
-            throw  new RuntimeException("You can't transfer from a savings account");
-        }
+        value = checkTransferPreconditions(value, fromAccount, toAccount);
 
         TransactionModel transaction = new TransactionModel(
                 UUID.randomUUID(),
@@ -40,6 +35,25 @@ public class TransactionManagerService {
         toAccount.getTransactions().add(transaction);
 
         return transaction;
+    }
+
+    private static MoneyModel checkTransferPreconditions(MoneyModel value, AccountModel fromAccount, AccountModel toAccount) {
+        if (fromAccount == null || toAccount == null) {
+            throw new RuntimeException("Specified account does not exist");
+        }
+
+        if (fromAccount instanceof SavingsAccountModel) {
+            throw  new RuntimeException("Can't transfer from a savings account");
+        }
+
+        if (fromAccount.getBalance().getCurrency() != toAccount.getBalance().getCurrency()) {
+            value = MoneyUtils.convert(value, toAccount.getBalance().getCurrency());
+        }
+
+        if (fromAccount.getBalance().getAmount() < value.getAmount()) {
+            throw new RuntimeException("Not enough funds for transfer");
+        }
+        return value;
     }
 
     public TransactionModel withdraw(String accountId, MoneyModel amount) {
