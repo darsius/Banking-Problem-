@@ -1,15 +1,13 @@
 package services;
 
-import domain.AccountModel;
-import domain.MoneyModel;
-import domain.SavingsAccountModel;
-import domain.TransactionModel;
+import domain.*;
 import repository.AccountsRepository;
 import utils.MoneyUtils;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.UUID;
 
 public class TransactionManagerService {
@@ -38,8 +36,18 @@ public class TransactionManagerService {
     }
 
     private static MoneyModel checkTransferPreconditions(MoneyModel value, AccountModel fromAccount, AccountModel toAccount) {
+        if (value.getAmount() < 0) {
+            throw new RuntimeException("Can't transfer negative sums of money");
+        }
+
+        validateTransferAmount(value);
+
         if (fromAccount == null || toAccount == null) {
             throw new RuntimeException("Specified account does not exist");
+        }
+
+        if (Objects.equals(fromAccount.getId(), toAccount.getId())) {
+            throw new RuntimeException("Can't transfer money to same account");
         }
 
         if (fromAccount instanceof SavingsAccountModel) {
@@ -53,7 +61,26 @@ public class TransactionManagerService {
         if (fromAccount.getBalance().getAmount() < value.getAmount()) {
             throw new RuntimeException("Not enough funds for transfer");
         }
+
+
         return value;
+    }
+
+    public static void validateTransferAmount(MoneyModel amount) {
+        double transferAmount = amount.getAmount();
+        switch (amount.getCurrency()) {
+            case EUR:
+                if (transferAmount > MaximumTransferableAmount.getMaxEuroTransfer()) {
+                    throw new RuntimeException("Transfer amount exceeded for euro currency");
+                }
+                break;
+            case RON:
+                if (transferAmount > MaximumTransferableAmount.getMaxRonTransfer()) {
+                    throw new RuntimeException("Transfer amount exceeded for ron currency");
+                }
+            default:
+                throw new RuntimeException("Transfer currency not available");
+        }
     }
 
     public TransactionModel withdraw(String accountId, MoneyModel amount) {

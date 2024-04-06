@@ -7,7 +7,6 @@ public class MoneyModel {
     public MoneyModel(double amount, CurrencyType currency) {
         this.amount = amount;
         this.currency = currency;
-
     }
 
     public double getAmount() {
