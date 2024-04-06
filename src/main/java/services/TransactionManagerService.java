@@ -12,7 +12,7 @@ import java.util.UUID;
 
 public class TransactionManagerService {
 
-    public TransactionModel transfer(String fromAccountId, String toAccountId, MoneyModel value) {
+    public synchronized TransactionModel transfer(String fromAccountId, String toAccountId, MoneyModel value) {
         AccountModel fromAccount = AccountsRepository.INSTANCE.get(fromAccountId);
         AccountModel toAccount = AccountsRepository.INSTANCE.get(toAccountId);
 
