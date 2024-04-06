@@ -3,21 +3,17 @@ import domain.CurrencyType;
 import domain.MoneyModel;
 import org.junit.Before;
 import org.junit.Test;
-
 import seed.SeedInitializer;
 import services.TransactionManagerService;
 
-import java.util.ArrayList;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static seed.AccountsSeedData.*;
-import static seed.SeedInitializer.seedData;
+
 
 
 public class BankingApplicationTest {
-
-//    private AccountsRepository repository;
     private TransactionManagerService service;
 
     CheckingAccountModel fromAccount = checkingAccountA;
@@ -37,7 +33,7 @@ public class BankingApplicationTest {
     @Test
     public void transferValidAccounts() {
         MoneyModel amount = new MoneyModel(50, CurrencyType.RON);
-        double delta = 0.01;
+        double delta = 0.01; //margin of error
 
         service.transfer(checkingAccountA.getId(), checkingAccountB.getId(), amount);
 
