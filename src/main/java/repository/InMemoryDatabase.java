@@ -27,4 +27,6 @@ public class InMemoryDatabase<T> {
     public boolean remove(String id) {
         return db.remove(id) != null;
     }
+
+    public void clear() {db.clear();}
 }

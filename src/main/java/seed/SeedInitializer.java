@@ -13,6 +13,7 @@ public class SeedInitializer {
 
     public static void seedData() {
         System.out.println("[Seeder] -------------Seeding data----------------\n");
+        AccountsRepository.INSTANCE.clear();
         AccountsRepository.INSTANCE.add(savingsAccountA.getId(), savingsAccountA);
         AccountsRepository.INSTANCE.add(savingsAccountB.getId(), savingsAccountB);
         AccountsRepository.INSTANCE.add(checkingAccountA.getId(), checkingAccountA);

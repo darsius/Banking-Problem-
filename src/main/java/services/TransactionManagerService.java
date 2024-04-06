@@ -131,11 +131,26 @@ public class TransactionManagerService {
     }
 
     private static void checkWithdrawPreconditions(MoneyModel amount, AccountModel account) {
+        validateAccountExists(account);
+        validateSufficientFundsForWithdrawal(account, amount);
+        validatePositiveWithdrawalAmount(amount);
+    }
+
+    private static void validateAccountExists(AccountModel account) {
         if (account == null) {
             throw new RuntimeException("This account doesn't exist");
         }
+    }
+
+    private static void validateSufficientFundsForWithdrawal(AccountModel account, MoneyModel amount) {
         if (amount.getAmount() > account.getBalance().getAmount()) {
             throw new RuntimeException("Insufficient funds");
+        }
+    }
+
+    private static void validatePositiveWithdrawalAmount(MoneyModel amount) {
+        if (amount.getAmount() < 0) {
+            throw new RuntimeException("Cannot withdraw a negative amount");
         }
     }
 
