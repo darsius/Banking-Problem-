@@ -20,14 +20,17 @@ public class SavingsManagerService {
         LocalDate nextSystemDate = systemDate.plusMonths(1);
 
         savingAccounts.forEach(savingAccount -> {
-            if (savingAccount.getInterestFrequency() == CapitalizationFrequency.MONTHLY) {
+            if (savingAccount.getInterestFrequency() == CapitalizationFrequency.QUARTERLY) {
+                addMonthlyInterest(savingAccount, nextSystemDate);
+            }
+            else if (savingAccount.getInterestFrequency() == CapitalizationFrequency.MONTHLY) {
                 addMonthlyInterest(savingAccount, nextSystemDate);
             }
         });
 
         savingAccounts.forEach(savingAccount -> {
             if (savingAccount.getInterestFrequency() == CapitalizationFrequency.QUARTERLY) {
-                addQuarterlyIntegers(savingAccount, nextSystemDate);
+                addQuarterlyInterest(savingAccount, nextSystemDate);
             }
         });
 
@@ -48,10 +51,10 @@ public class SavingsManagerService {
         }
     }
 
-    private void addQuarterlyIntegers(SavingsAccountModel savingAccount, LocalDate currentIntegersQuarter) {
+    private void addQuarterlyInterest(SavingsAccountModel savingAccount, LocalDate currentIntegersQuarter) {
         LocalDate nextInterestDateForAccount = savingAccount.getLastInterestAppliedDate().plusMonths(3);
 
-        if (isSameMonthAndYear(currentIntegersQuarter, nextInterestDateForAccount)) {
+        if (isSameQuarterAndYear(currentIntegersQuarter, nextInterestDateForAccount)) {
             addInterest(savingAccount);
             savingAccount.setLastInterestAppliedDate(currentIntegersQuarter);
         }
