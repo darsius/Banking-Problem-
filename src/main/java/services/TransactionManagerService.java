@@ -83,14 +83,9 @@ public class TransactionManagerService {
         }
     }
 
-    public TransactionModel withdraw(String accountId, MoneyModel amount) {
+    public synchronized TransactionModel withdraw(String accountId, MoneyModel amount) {
         AccountModel account = AccountsRepository.INSTANCE.get(accountId);
-        if (account == null) {
-            throw new RuntimeException("This account doesn't exist");
-        }
-        if (amount.getAmount() > account.getBalance().getAmount()) {
-            throw  new RuntimeException("Insufficient funds");
-        }
+        checkWithdrawPreconditions(amount, account);
 
         account.getBalance().setAmount(account.getBalance().getAmount() - amount.getAmount());
 
@@ -104,6 +99,15 @@ public class TransactionManagerService {
 
         account.getTransactions().add(transaction);
         return transaction;
+    }
+
+    private static void checkWithdrawPreconditions(MoneyModel amount, AccountModel account) {
+        if (account == null) {
+            throw new RuntimeException("This account doesn't exist");
+        }
+        if (amount.getAmount() > account.getBalance().getAmount()) {
+            throw new RuntimeException("Insufficient funds");
+        }
     }
 
     public MoneyModel checkFunds(String accountId) {
